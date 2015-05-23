@@ -236,6 +236,29 @@ public class MazeMarkovDecisionProcess implements MarkovDecisionProcess {
     public int sampleInitialState() {
         return initial;
     }
+    
+    /**
+     * sample an episode
+     * @param policy the policy to follow
+     * @return the total reward collected
+     */
+    public double sampleEpisode(Policy policy) {
+    	double reward = 0;
+    	int state = sampleInitialState();
+    	int stepCount = 0;
+    	while (!isTerminalState(state)) {
+    		// throw an error if terminal state cannot be reached within a billion steps
+    		if (stepCount > 1000000000) {
+    			throw new RuntimeException("the terminal state cannot be reached.");
+    		}
+    		int action = policy.getAction(state);
+    		state = sampleState(state, action);
+    		reward += reward(state, action);
+    		stepCount++;
+    	}
+    	return reward;
+    }
+
 
     /**
      * @see rl.MarkovDecisionProcess#isTerminalState(int)
